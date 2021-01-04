@@ -9,7 +9,36 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "ZGinger plugin"
+      },
+      "hosts": {
+        "title": "Smart hubs",
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "title": "Hub",
+          "type": "object",
+          "properties": {
+            "ip": {
+              "title": "Host Ip addr",
+              "type": "string",
+              "required": true,
+              "default": "192.168.1.6"
+            },
+            "port": {
+              "title": "Host port",
+              "type": "number",
+              "required": true,
+              "default": "4000"
+            },
+            "password": {
+              "title": "Admin password",
+              "type": "string",
+              "required": true,
+              "default": "123456"
+            }
+          }
+        }
       }
     }
   }
