@@ -1,14 +1,14 @@
 import { PlatformConfig } from 'homebridge';
 
 
-export interface IConfigZgingerHub {
+export interface IConfigGateway {
     ip: string;
-    port: string;
+    port: number;
     password: string;
 }
 
 export type IConfigZginger = {
-    hosts: IConfigZgingerHub[];
+    gateways: IConfigGateway[];
 };
 
 export interface IConfig extends PlatformConfig, IConfigZginger {}

@@ -11,12 +11,12 @@
         "required": true,
         "default": "ZGinger plugin"
       },
-      "hosts": {
-        "title": "Smart hubs",
+      "gateways": {
+        "title": "Smart gateways",
         "type": "array",
         "uniqueItems": true,
         "items": {
-          "title": "Hub",
+          "title": "Gateway settings",
           "type": "object",
           "properties": {
             "ip": {
