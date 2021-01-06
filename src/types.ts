@@ -12,3 +12,11 @@ export type IConfigZginger = {
 };
 
 export interface IConfig extends PlatformConfig, IConfigZginger {}
+
+export type IDevice = {
+    id: number;
+    type: number;
+    deviceId: number;
+    status: number;
+    name: string;
+};
