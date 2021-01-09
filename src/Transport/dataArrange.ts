@@ -24,7 +24,6 @@ const parseDeviceList = (data): (IDevice | undefined)[] => {
     }
     deviceData.push(char);
   });
-  console.log('deviceList', deviceList)
   return deviceList.map(parseDevice).filter(Boolean);
 };
 
@@ -37,7 +36,19 @@ const parseResponse = data => {
   };
 };
 
+const parseSensorResponse = data => {
+  return {
+    id: data[3],
+    type: data[4],
+    deviceId: data[5],
+    temperature: data[6],
+    brightness: data[7],
+    motion: data[8],
+  };
+};
+
 export {
   parseDeviceList,
   parseResponse,
+  parseSensorResponse,
 };

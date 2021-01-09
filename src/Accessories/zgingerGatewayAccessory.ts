@@ -1,17 +1,24 @@
 'use strict';
 import { PlatformAccessory, Service } from 'homebridge';
 import { ZgingerHomebridgePlatform } from '../platform';
-import { CodeEnum, DEVICE_LIST, DeviceEnum, Net, parseDeviceList, parseResponse } from '../Transport';
+import {
+  CodeEnum,
+  DEVICE_LIST,
+  DeviceEnum,
+  Net,
+  parseDeviceList,
+  parseResponse,
+  parseSensorResponse,
+} from '../Transport';
 import { ZgingerSwitchAccessory } from './zgingerSwitchAccessory';
-
-type deviceTypes = ZgingerSwitchAccessory[];
+import { ZgingerSensorAccessory } from './zgingerSensorAccessory';
 
 // I've tested it only on GW-9321 Gateway
 // TODO: add support GW-9322, GW-93231, GW-9324, GW-9325, GW-9326
 export class ZgingerGatewayAccessory {
   public gateway;
-  private service: Service;
-  private devices: deviceTypes = [];
+  private readonly service: Service;
+  private readonly devices: Array<ZgingerSwitchAccessory | ZgingerSensorAccessory> = [];
 
   constructor(
         private readonly platform: ZgingerHomebridgePlatform,
@@ -44,13 +51,16 @@ export class ZgingerGatewayAccessory {
   };
 
   onData = e => {
-    //this.platform.log.info('Received RAW', [...e]);
+    //.this.platform.log.info('Received RAW', [...e]);
     switch (e[1]) {
       case CodeEnum.DEVICES_RES:
         this.updateAccessories(e);
         break;
       case CodeEnum.ACTION_RES:
         this.createOrUpdateDevice(parseResponse(e));
+        break;
+      case CodeEnum.SENSOR_RES:
+        this.createOrUpdateDevice(parseSensorResponse(e));
         break;
     }
   };
@@ -71,15 +81,24 @@ export class ZgingerGatewayAccessory {
 
   createOrUpdateDevice = device => {
     const existingDevice = this.devices[device.id];
-    switch (device.type) {
-      case DeviceEnum.DEFAULT:
-      case DeviceEnum.SWITCH:
-        if (existingDevice) {
-          existingDevice.setStatus(device.status);
-        } else {
+
+    if (existingDevice) {
+      if (device.status >= 0) {
+        existingDevice.setStatusOn(this.service, device.status);
+      }
+      if (device.motion >= 0 && existingDevice instanceof ZgingerSensorAccessory) {
+        existingDevice.updateSensorData(device);
+      }
+    } else {
+      switch (device.type) {
+        case DeviceEnum.DEFAULT:
+        case DeviceEnum.SWITCH:
           this.devices[device.id] = new ZgingerSwitchAccessory(this.platform, this.gateway, device);
-        }
-        break;
+          break;
+        case DeviceEnum.SENSOR:
+          this.devices[device.id] = new ZgingerSensorAccessory(this.platform, this.gateway, device);
+          break;
+      }
     }
   };
 }

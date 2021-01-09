@@ -20,3 +20,9 @@ export type IDevice = {
     status: number;
     name: string;
 };
+
+export type ISensorData = {
+    motion: boolean;
+    brightness: number;
+    temperature: number;
+};

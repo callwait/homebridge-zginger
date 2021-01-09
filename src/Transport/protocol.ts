@@ -28,6 +28,8 @@ enum CodeEnum {
   DEVICES_RES = 88,
   AUTH_REQ = 98,
   AUTH_RES = 99,
+  SENSOR_REQ = 38,
+  SENSOR_RES = 232,
   ACTION_RES = 16,
   ACTION_REQ = 6,
 }
@@ -35,7 +37,7 @@ enum CodeEnum {
 enum DeviceEnum {
   DEFAULT = 0,
   SWITCH = 10,
-  PIR = 12,
+  SENSOR = 12,
   IR = 6,
   DIMMER = 1,
 }
