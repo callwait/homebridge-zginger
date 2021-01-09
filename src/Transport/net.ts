@@ -18,13 +18,13 @@ export class Net {
     });
 
     this.client.on('data', data => {
+      this.platform.log.info('Received: ' + [...data]);
       onData(data);
-      this.platform.log.info('Received: ' + data);
     });
 
     this.client.on('close', () => {
-      this.isConnected = false;
       this.platform.log.error('Connection closed');
+      this.isConnected = false;
     });
   }
 

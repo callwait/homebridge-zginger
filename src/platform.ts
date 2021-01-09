@@ -14,8 +14,8 @@ import { ZgingerGatewayAccessory } from './Accessories/zgingerGatewayAccessory';
 export class ZgingerHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly accessories: PlatformAccessory[] = [];
   private readonly config: IConfig;
-  private readonly accessories: PlatformAccessory[] = [];
 
   constructor(
     public readonly log: Logger,

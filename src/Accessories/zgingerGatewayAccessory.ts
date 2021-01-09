@@ -1,12 +1,17 @@
+'use strict';
 import { PlatformAccessory, Service } from 'homebridge';
 import { ZgingerHomebridgePlatform } from '../platform';
-import { CodeEnum, DEVICE_LIST, Net, parseDeviceList } from '../Transport';
+import { CodeEnum, DEVICE_LIST, DeviceEnum, Net, parseDeviceList, parseResponse } from '../Transport';
+import { ZgingerSwitchAccessory } from './zgingerSwitchAccessory';
+
+type deviceTypes = ZgingerSwitchAccessory[];
 
 // I've tested it only on GW-9321 Gateway
 // TODO: add support GW-9322, GW-93231, GW-9324, GW-9325, GW-9326
 export class ZgingerGatewayAccessory {
   public gateway;
   private service: Service;
+  private devices: deviceTypes = [];
 
   constructor(
         private readonly platform: ZgingerHomebridgePlatform,
@@ -23,6 +28,11 @@ export class ZgingerGatewayAccessory {
     this.service.getCharacteristic(this.platform.Characteristic.WiFiSatelliteStatus)
       .on('get', this.handleWiFiSatelliteStatusGet);
     this.connect();
+
+    // setInterval(() => {
+    //   this.getDevicesList();
+    // }, 5000);
+
   }
 
   connect = () => {
@@ -37,7 +47,10 @@ export class ZgingerGatewayAccessory {
     //this.platform.log.info('Received RAW', [...e]);
     switch (e[1]) {
       case CodeEnum.DEVICES_RES:
-        console.log(parseDeviceList(e))
+        this.updateAccessories(e);
+        break;
+      case CodeEnum.ACTION_RES:
+        this.createOrUpdateDevice(parseResponse(e));
         break;
     }
   };
@@ -49,5 +62,24 @@ export class ZgingerGatewayAccessory {
   handleWiFiSatelliteStatusGet = (callback) => {
     const currentValue = this.gateway.isConnected;
     callback(null, currentValue);
+  };
+
+  updateAccessories = e => {
+    const data = parseDeviceList(e);
+    data.map(this.createOrUpdateDevice);
+  };
+
+  createOrUpdateDevice = device => {
+    const existingDevice = this.devices[device.id];
+    switch (device.type) {
+      case DeviceEnum.DEFAULT:
+      case DeviceEnum.SWITCH:
+        if (existingDevice) {
+          existingDevice.setStatus(device.status);
+        } else {
+          this.devices[device.id] = new ZgingerSwitchAccessory(this.platform, this.gateway, device);
+        }
+        break;
+    }
   };
 }
