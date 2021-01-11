@@ -2,31 +2,43 @@
 import * as net from 'net';
 import { ZgingerHomebridgePlatform } from '../platform';
 
-export class Net {
+export class Client {
   public client;
   public isConnected = false;
 
   constructor(
       private platform: ZgingerHomebridgePlatform,
-      {data, onConnect, onData},
+      private input,
   ) {
     this.client = new net.Socket();
-    this.client.connect(data.port, data.ip, () => {
-      this.isConnected = true;
-      this.platform.log.info('Client connected');
-      onConnect();
-    });
-
     this.client.on('data', data => {
-      this.platform.log.info('Received: ' + [...data]);
-      onData(data);
+      this.platform.log.debug('Received: ' + [...data]);
+      input.onData(data);
     });
 
     this.client.on('close', () => {
       this.platform.log.error('Connection closed');
       this.isConnected = false;
     });
+
+    this.client.on('error', (err) => {
+      this.platform.log.error('Connection error', err);
+      this.connect();
+    });
+
+    this.connect();
   }
+
+  connect = () => {
+    const {ip, port} = this.input.data;
+    this.platform.log.debug('Trying to connect...');
+    this.client.connect(port, ip, () => {
+      this.isConnected = true;
+      this.platform.log.info('Client connected');
+      this.input.onConnect();
+    });
+
+  };
 
   write = data => {
     const buffer = Buffer.from(data);

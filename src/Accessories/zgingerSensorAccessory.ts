@@ -35,17 +35,13 @@ export class ZgingerSensorAccessory extends platformAccessory {
 
     const request = gatewayRequestData(CodeEnum.SENSOR_REQ, this.device.id, 1);
     this.gateway.write(request);
-
-    setInterval(() => {
-      const request = gatewayRequestData(CodeEnum.SENSOR_REQ, this.device.id, 1);
-      this.gateway.write(request);
-    }, 5000);
   }
 
   updateSensorData = data => {
     const celsius = Math.round((data.temperature - 32) * (5/9));
+    const brightness = (250 - data.brightness) / 250 * 100;
     this.serviceMotion.getCharacteristic(this.platform.Characteristic.MotionDetected).updateValue(!!data.motion);
-    this.serviceLight.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel).updateValue(data.brightness);
+    this.serviceLight.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel).updateValue(brightness);
     this.serviceTemperature.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(celsius);
   };
 }

@@ -2,13 +2,14 @@
 import { PlatformAccessory, Service } from 'homebridge';
 import { ZgingerHomebridgePlatform } from '../platform';
 import {
+  Client,
   CodeEnum,
   DEVICE_LIST,
   DeviceEnum,
-  Net,
   parseDeviceList,
   parseResponse,
   parseSensorResponse,
+  Server,
 } from '../Transport';
 import { ZgingerSwitchAccessory } from './zgingerSwitchAccessory';
 import { ZgingerSensorAccessory } from './zgingerSensorAccessory';
@@ -34,35 +35,46 @@ export class ZgingerGatewayAccessory {
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.displayName);
     this.service.getCharacteristic(this.platform.Characteristic.WiFiSatelliteStatus)
       .on('get', this.handleWiFiSatelliteStatusGet);
-    this.connect();
-
-    // setInterval(() => {
-    //   this.getDevicesList();
-    // }, 5000);
-
+    this.startClient();
   }
 
-  connect = () => {
-    this.gateway = new Net(this.platform, {
+  startClient = () => {
+    this.gateway = new Client(this.platform, {
       data: this.accessory.context.device,
-      onConnect: this.getDevicesList,
+      onConnect: this.onClientConnected,
+      onData: this.onData,
+    });
+  };
+
+  startServer = () => {
+    new Server(this.platform, {
+      data: this.accessory.context.device,
       onData: this.onData,
     });
   };
 
   onData = e => {
-    //.this.platform.log.info('Received RAW', [...e]);
-    switch (e[1]) {
-      case CodeEnum.DEVICES_RES:
-        this.updateAccessories(e);
-        break;
-      case CodeEnum.ACTION_RES:
-        this.createOrUpdateDevice(parseResponse(e));
-        break;
-      case CodeEnum.SENSOR_RES:
-        this.createOrUpdateDevice(parseSensorResponse(e));
-        break;
+    // this.platform.log.info('Received RAW', [...e]);
+    try {
+      switch (e[1]) {
+        case CodeEnum.DEVICES_RES:
+          this.updateAccessories(e);
+          break;
+        case CodeEnum.ACTION_RES:
+          this.createOrUpdateDevice(parseResponse(e));
+          break;
+        case CodeEnum.SENSOR_RES:
+          this.createOrUpdateDevice(parseSensorResponse(e));
+          break;
+      }
+    } catch (e) {
+      this.platform.log.error('onData exception', e);
     }
+  };
+
+  onClientConnected = () => {
+    this.getDevicesList();
+    this.startServer();
   };
 
   getDevicesList = () => {
