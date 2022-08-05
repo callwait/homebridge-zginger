@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "Homebridge ZGinger",
   "name": "homebridge-zginger",
   "version": "1.0.0",
