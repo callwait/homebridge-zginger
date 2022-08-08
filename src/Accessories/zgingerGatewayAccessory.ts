@@ -13,13 +13,16 @@ import {
 } from '../Transport';
 import { ZgingerSwitchAccessory } from './zgingerSwitchAccessory';
 import { ZgingerSensorAccessory } from './zgingerSensorAccessory';
+import {ZgingerOutletAccessory} from "./zgingerOutletAccessory";
+
+type Devices = Array<ZgingerSwitchAccessory | ZgingerSensorAccessory | ZgingerOutletAccessory>
 
 // I've tested it only on GW-9321 Gateway
 // TODO: add support GW-9322, GW-93231, GW-9324, GW-9325, GW-9326
 export class ZgingerGatewayAccessory {
   public gateway;
   private readonly service: Service;
-  private readonly devices: Array<ZgingerSwitchAccessory | ZgingerSensorAccessory> = [];
+  private readonly devices: Devices = [];
 
   constructor(
         private readonly platform: ZgingerHomebridgePlatform,
@@ -60,6 +63,7 @@ export class ZgingerGatewayAccessory {
         case CodeEnum.DEVICES_RES:
           this.updateAccessories(e);
           break;
+        case CodeEnum.DEVICE_STATUS:
         case CodeEnum.ACTION_RES:
           this.createOrUpdateDevice(parseResponse(e));
           break;
@@ -96,7 +100,7 @@ export class ZgingerGatewayAccessory {
 
     if (existingDevice) {
       if (device.status >= 0) {
-        existingDevice.setStatusOn(this.service, device.status);
+        existingDevice.updateStatusOn(device.status);
       }
       if (device.motion >= 0 && existingDevice instanceof ZgingerSensorAccessory) {
         existingDevice.updateSensorData(device);
@@ -109,6 +113,9 @@ export class ZgingerGatewayAccessory {
           break;
         case DeviceEnum.SENSOR:
           this.devices[device.id] = new ZgingerSensorAccessory(this.platform, this.gateway, device);
+          break;
+        case DeviceEnum.OUTLET:
+          this.devices[device.id] = new ZgingerOutletAccessory(this.platform, this.gateway, device);
           break;
       }
     }

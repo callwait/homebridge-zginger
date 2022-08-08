@@ -32,6 +32,7 @@ enum CodeEnum {
   SENSOR_RES = 232,
   ACTION_RES = 16,
   ACTION_REQ = 6,
+  DEVICE_STATUS = 160,
 }
 
 enum DeviceEnum {
@@ -40,6 +41,9 @@ enum DeviceEnum {
   SENSOR = 12,
   IR = 6,
   DIMMER = 1,
+  OUTLET = 5,
+  CURTAIN = 4,
+  SCENE = 13,
 }
 
 const DEVICE_LIST = gatewayRequestData(CodeEnum.DEVICES_REQ, 0, 1);

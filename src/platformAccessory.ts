@@ -1,5 +1,5 @@
 'use strict';
-import { PlatformAccessory } from 'homebridge';
+import { PlatformAccessory, Service } from 'homebridge';
 import { ZgingerHomebridgePlatform } from './platform';
 import { IDevice } from './types';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
@@ -18,11 +18,7 @@ export class platformAccessory {
     this.Name = this._platform.Characteristic.Name;
   }
 
-  setStatusOn = (service, status) => {
-    const err = new Error('No Response');
-    this._platform.log.debug('setStatusOn:', status);
-    service.getCharacteristic(this._platform.Characteristic.On).updateValue(status === 2 ? err : status);
-  };
+  updateStatusOn = (status: number) => {};
 
   discoverDevice(data: IDevice) {
     const uuid = this._platform.api.hap.uuid.generate(data.name);
@@ -41,7 +37,7 @@ export class platformAccessory {
     this.accessoryInformation().setCharacteristic(this.Manufacturer, 'Gingerway Technologies Co., Ltd');
   }
 
-  accessoryInformation() {
+  accessoryInformation(): Service {
     return this.accessory.getService(this._platform.Service.AccessoryInformation)!;
   }
 }
