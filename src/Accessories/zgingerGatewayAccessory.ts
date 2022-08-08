@@ -13,9 +13,10 @@ import {
 } from '../Transport';
 import { ZgingerSwitchAccessory } from './zgingerSwitchAccessory';
 import { ZgingerSensorAccessory } from './zgingerSensorAccessory';
-import {ZgingerOutletAccessory} from "./zgingerOutletAccessory";
+import { ZgingerOutletAccessory } from "./zgingerOutletAccessory";
+import { ZgingerDimmerAccessory } from './zgingerDimmerAccessory';
 
-type Devices = Array<ZgingerSwitchAccessory | ZgingerSensorAccessory | ZgingerOutletAccessory>
+type Devices = Array<ZgingerSwitchAccessory | ZgingerSensorAccessory | ZgingerOutletAccessory | ZgingerDimmerAccessory>
 
 // I've tested it only on GW-9321 Gateway
 // TODO: add support GW-9322, GW-93231, GW-9324, GW-9325, GW-9326
@@ -116,6 +117,9 @@ export class ZgingerGatewayAccessory {
           break;
         case DeviceEnum.OUTLET:
           this.devices[device.id] = new ZgingerOutletAccessory(this.platform, this.gateway, device);
+          break;
+        case DeviceEnum.DIMMER:
+          this.devices[device.id] = new ZgingerDimmerAccessory(this.platform, this.gateway, device);
           break;
       }
     }
