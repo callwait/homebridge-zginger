@@ -78,12 +78,14 @@ export class ZgingerGatewayAccessory {
   };
 
   onClientConnected = () => {
-    this.getDevicesList();
+    this.getDevicesList(1);
+    setTimeout(() => this.getDevicesList(2), 2000);
+    setTimeout(() => this.getDevicesList(3), 4000);
     this.startServer();
   };
 
-  getDevicesList = () => {
-    this.gateway.write(DEVICE_LIST);
+  getDevicesList = page => {
+    this.gateway.write(DEVICE_LIST(page));
   };
 
   handleWiFiSatelliteStatusGet = (callback) => {

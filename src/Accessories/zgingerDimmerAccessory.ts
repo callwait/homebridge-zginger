@@ -29,8 +29,16 @@ export class ZgingerDimmerAccessory extends platformAccessory {
         this.updateStatusOn(this.device.status);
     }
 
+    calculateDimmerValue = brightness => {
+        const min = 50;
+        const max = 100;
+        const diff = max - min;
+        const persent = brightness / max;
+        return Math.ceil(min + (diff * persent))
+    }
+
     setBrightness = (value, callback) => {
-        const brightness = value;
+        const brightness = this.calculateDimmerValue(value);
         this.platform.log.debug(this.device.name + ' set brightness:', brightness);
         const request = gatewayRequestData(CodeEnum.ACTION_REQ, this.device.id, brightness);
         this.gateway.write(request);

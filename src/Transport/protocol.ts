@@ -46,7 +46,7 @@ enum DeviceEnum {
   SCENE = 13,
 }
 
-const DEVICE_LIST = gatewayRequestData(CodeEnum.DEVICES_REQ, 0, 1);
+const DEVICE_LIST = page => gatewayRequestData(CodeEnum.DEVICES_REQ, 0, page);
 
 export {
   CodeEnum,
